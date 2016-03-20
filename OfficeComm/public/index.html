@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css">
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/angular.min.js"></script>
+<script type="text/javascript" src="js/clientapp.js"></script>
+
+<script src="lib/socket.io.js"></script>
+<script type="text/javascript"></script>
+<script type="text/javascript">
+	var mainModule = angular.module("mainModule", []);
+	var messenger;
+
+	$(document).ready(function() {
+		$("form").on("submit", function() {
+			return false;
+		});
+
+		//Create a nick and initial a messenger
+		$("#btnEnter").on("click", function() {
+			var nick = $("#idNick").val();
+			$("#idNick").val("");
+			
+			if (nick.length >= 6) {
+				//check if the nick name is used
+				$.get("/users/check/nick", function(msg){
+					
+					
+				});
+				
+				$('#myModal').modal('hide');
+				//create a new messenger
+				messenger = new Messenger(new io(), nick, {
+					resolve : function(msg) {
+						console.log("Show how to resolve the message.");
+						obj = JSON.parse(msg);
+						switch (obj.event) {
+						case 1:
+							//update the list online users correspondingly
+							break;
+						case 2:
+							//update the message box.
+							break;
+						case 3:
+							//update the list online users correspondingly
+							break;
+						default:
+							break;
+						}
+					}
+				});
+				messenger.register();
+			} else {
+				alert("Please enter username (length 6 to 50)! ");
+			}
+
+		});
+
+		//Make sure the modal cannot be closed
+		$('#myModal').modal({
+			backdrop : 'static',
+			keyboard : false
+		});
+		$($('#myModal input')[0]).focus();
+		
+
+		//Make sure user did not leave
+		$(window).on("beforeunload", function() {
+			return "Please don't leave me!";
+		});
+	});
+	//var socket = io();
+	//var messenger = new Messenger(socket);
+	mainModule.controller("MessageSendingController", function($scope, $http) {
+		$scope.onSendBtnClick = function(event) {
+			//event.preventDefault(); // cancel default behavior
+			console.log($scope.chatMessage)
+			messenger.send($scope.chatMessage)
+		}
+	});
+</script>
+
+<style type="text/css">
+.panel-height {
+	height: 100%;
+}
+
+.height500 {
+	height: 400px;
+}
+
+.OverFlow {
+	overflow: auto;
+}
+
+.width800px {
+	width: 1400px;
+}
+</style>
+</head>
+<body>
+	<form action="">
+		<h1>Chat application</h1>
+
+		<!-- Sample -->
+		<div class="container-fluid width800px" ng-app="mainModule">
+			<div class="height500 row">
+				<div id="pnlMsg" class="height500 col-md-8">
+					<div class="panel panel-primary height500">
+						<div class="panel-heading">Messages</div>
+						<div class="panel-body panel-height OverFlow"></div>
+					</div>
+				</div>
+				<div id="pnlUsers" class="col-md-2">
+					<div class="panel panel-primary height500">
+						<div class="panel-heading">Online User</div>
+						<div class="panel-body panel-height"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row form-group" ng-controller="MessageSendingController">
+				<div id="pnlText" class="col-md-9">
+					<input type="text" name="txtMsg" class="form-control"
+						ng-model="chatMessage">
+				</div>
+				<div id="pnlButton" class="col-md-1" ng-click="onSendBtnClick()">
+					<button name="btnSend" class="form-control">Sends</button>
+				</div>
+			</div>
+		</div>
+	</form>
+	<!-- End -->
+	<!-- Modal -->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+					<h4 class="modal-title">Please enter nick name to chat:</h4>
+				</div>
+				<div class="modal-body form-group">
+					<input type="text" class="form-control" id="idNick" name="txtNick"
+						maxlength="50">
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="btnEnter" class="btn btn-default">Enter</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>
